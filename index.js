@@ -12,7 +12,11 @@ function createEmployeeRecord(arr){
 }
 
 function createEmployeeRecords(arr){
-    return arr.map(elem => createEmployeeRecord(elem))
+    // return arr.map(elem => createEmployeeRecord(elem))
+
+    return arr.map(function(row){
+        return createEmployeeRecord(row)
+    })
 }
 
 // let twoRows = [
@@ -23,10 +27,12 @@ function createEmployeeRecords(arr){
 // createEmployeeRecords(twoRows)
 
 const createTimeInEvent = (obj, dateStr) => {
+    let [date, hour] = dateStr.split(' ')
+
     obj.timeInEvents.push({
         type: 'TimeIn',
-        hour: parseInt(dateStr.slice(11)),
-        date: dateStr.slice(0, 10)
+        hour: parseInt(hour, 10),
+        date
     })
     return obj
 }
@@ -35,19 +41,24 @@ const createTimeInEvent = (obj, dateStr) => {
 // createTimeInEvent(bpRecord, "2014-02-28 1400")
 
 const createTimeOutEvent = (obj, dateStr) => {
+    let [date, hour] = dateStr.split(' ')
+
     obj.timeOutEvents.push({
         type: 'TimeOut',
-        hour: parseInt(dateStr.slice(11)),
-        date: dateStr.slice(0, 10)
+        hour: parseInt(hour, 10),
+        date
     })
     return obj
 }
 
 const hoursWorkedOnDate = (obj, dateStr) => {
-    const timeIn = obj.timeInEvents.filter(event => event.date === dateStr)[0].hour
-    const timeOut = obj.timeOutEvents.filter(event => event.date === dateStr)[0].hour
+    // const timeIn = obj.timeInEvents.filter(event => event.date === dateStr)[0].hour
+    // const timeOut = obj.timeOutEvents.filter(event => event.date === dateStr)[0].hour
 
-    return (timeOut - timeIn)/100
+    const inEvent = obj.timeInEvents.find((e) => e.date === dateStr)
+    const outEvent = obj.timeOutEvents.find((e) => e.date === dateStr)
+    
+    return (outEvent.hour - inEvent.hour) / 100
 }
 
 // const cRecord = createEmployeeRecord(["Julius", "Caesar", "General", 1000])
@@ -62,23 +73,25 @@ const wagesEarnedOnDate = (obj, dateStr) => {
 const allWagesFor = (obj) => {
     const dates = obj.timeInEvents.map(event => event.date)
     
-    const allWages = dates.map(d => wagesEarnedOnDate(obj, d))
+    return dates.reduce((acum, d) => acum + wagesEarnedOnDate(obj, d), 0)
 
-    let acum = 0
-    for(let i = 0; i < allWages.length; i++){
-        acum += allWages[i]
-    }
+    // let acum = 0
+    // for(let i = 0; i < allWages.length; i++){
+    //     acum += allWages[i]
+    // }
 
-    return acum
+    // return acum
 }
 
 const calculatePayroll = (arr) => {
-    const payrollArr = arr.map(employee => allWagesFor(employee))
+    return arr.reduce((acum, rec) => acum + allWagesFor(rec), 0)
 
-    let acum = 0
-    for(let i = 0; i < payrollArr.length; i++){
-        acum += payrollArr[i]
-    }
+    // const payrollArr = arr.map(employee => allWagesFor(employee))
 
-    return acum
+    // let acum = 0
+    // for(let i = 0; i < payrollArr.length; i++){
+    //     acum += payrollArr[i]
+    // }
+
+    // return acum
 }
